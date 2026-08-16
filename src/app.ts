@@ -10,6 +10,7 @@ import { auth } from './lib/auth.js';
 import { notFound } from './middlewares/not-found.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { healthRouter } from './routes/health.routes.js';
+import { authorRouter } from './routes/author.routes.js';
 
 export const app = express();
 
@@ -45,6 +46,9 @@ app.use(express.urlencoded({ extended: true }));
 
 //health check
 app.use('/api/health', healthRouter);
+
+//author routes
+app.use('/api/v1/authors', authorRouter);
 
 
 //error & not found middleware
