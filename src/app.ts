@@ -48,7 +48,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/health', healthRouter);
 
 //author routes
-app.use('/api/v1/authors', authorRouter);
+app.use('/api/authors', authorRouter);
 
 
 //error & not found middleware
