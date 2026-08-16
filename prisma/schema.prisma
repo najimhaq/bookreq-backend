@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  COMPLETED
+}
+
+model Author {
+  id        String   @id @default(cuid())
+  name      String
+  bio       String?
+  books     Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Book {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  coverImageUrl String?
+  publishedYear Int?
+  status        ReadingStatus @default(WANT_TO_READ)
+
+  authorId      String
+  author        Author        @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([title])
+  @@index([authorId])
+}
