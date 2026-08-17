@@ -1,3 +1,4 @@
+//src/middlewares/require-auth.ts
 import type { RequestHandler } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
 

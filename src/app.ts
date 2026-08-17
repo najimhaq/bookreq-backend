@@ -11,6 +11,7 @@ import { notFound } from './middlewares/not-found.js';
 import { errorHandler } from './middlewares/error-handler.js';
 import { healthRouter } from './routes/health.routes.js';
 import { authorRouter } from './routes/author.routes.js';
+import { bookRouter } from './routes/book.routes.js';
 
 export const app = express();
 
@@ -41,8 +42,6 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-//routes
-// app.use('/api/profile', profileRouter);
 
 //health check
 app.use('/api/health', healthRouter);
@@ -50,6 +49,8 @@ app.use('/api/health', healthRouter);
 //author routes
 app.use('/api/authors', authorRouter);
 
+//book routes
+app.use('/api/books', bookRouter);
 
 //error & not found middleware
 app.use(notFound);
