@@ -1,8 +1,10 @@
 import { Router } from 'express';
 
-import { createBook } from '../controllers/book.controller.js';
+import { createBook, getMyBooks } from '../controllers/book.controller.js';
 import { requireAuth } from '../middlewares/require-auth.js';
 
 export const bookRouter = Router();
 
-bookRouter.post('/', requireAuth, createBook);
+bookRouter.use(requireAuth);
+
+bookRouter.route('/').get(getMyBooks).post(createBook);

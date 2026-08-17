@@ -64,3 +64,34 @@ export const createBook: RequestHandler = async (req, res) => {
     data: book,
   });
 };
+
+//get my books
+export const getMyBooks: RequestHandler = async (req, res) => {
+  if (!req.user) {
+    throw new AppError('Authentication required', 401);
+  }
+
+  const books = await prisma.book.findMany({
+    where: {
+      userId: req.user.id,
+    },
+
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    data: books,
+  });
+};
