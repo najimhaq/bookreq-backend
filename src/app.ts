@@ -12,6 +12,7 @@ import { errorHandler } from './middlewares/error-handler.js';
 import { healthRouter } from './routes/health.routes.js';
 import { authorRouter } from './routes/author.routes.js';
 import { bookRouter } from './routes/book.routes.js';
+import { userRouter } from './routes/user.routes.js';
 
 export const app = express();
 
@@ -45,6 +46,9 @@ app.use(express.urlencoded({ extended: true }));
 
 //health check
 app.use('/api/health', healthRouter);
+
+//profile routes
+app.use('/api/users', userRouter);
 
 //author routes
 app.use('/api/authors', authorRouter);
