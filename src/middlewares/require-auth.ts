@@ -1,36 +1,25 @@
-import type { NextFunction, Request, Response } from 'express';
+import type { RequestHandler } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
 
 import { auth } from '../lib/auth.js';
+import { AppError } from '../utils/app-error.js';
 
-declare global {
-  namespace Express {
-    interface Request {
-      session?: any;
-      user?: any;
-    }
-  }
-}
-
-export const requireAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const requireAuth: RequestHandler = async (req, _res, next) => {
   try {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
 
     if (!session) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized. Please sign in.',
-      });
+      throw new AppError('Authentication required', 401);
     }
 
-    req.session = session.session;
-    req.user = session.user;
+    req.user = {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+      role: session.user.role as 'USER' | 'ADMIN',
+    };
 
     next();
   } catch (error) {
