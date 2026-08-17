@@ -95,3 +95,40 @@ export const getMyBooks: RequestHandler = async (req, res) => {
     data: books,
   });
 };
+export const getBookById: RequestHandler = async (req, res) => {
+  if (!req.user) {
+    throw new AppError('Authentication required', 401);
+  }
+
+  const { id } = req.params;
+
+  if (typeof id !== 'string') {
+    throw new AppError('Invalid book ID', 400);
+  }
+
+  const book = await prisma.book.findFirst({
+    where: {
+      id,
+      userId: req.user.id,
+    },
+
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          bio: true,
+        },
+      },
+    },
+  });
+
+  if (!book) {
+    throw new AppError('Book not found', 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: book,
+  });
+};
