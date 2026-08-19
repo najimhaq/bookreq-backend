@@ -73,3 +73,75 @@ export const getAdminDashboard: RequestHandler = async (_req, res, next) => {
     next(error);
   }
 };
+
+export const getAdminUsers: RequestHandler = async (req, res, next) => {
+  try {
+    const rawPage = Number(req.query.page ?? 1);
+    const rawLimit = Number(req.query.limit ?? 10);
+    const search =
+      typeof req.query.search === 'string' ? req.query.search.trim() : '';
+
+    const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+
+    const limit =
+      Number.isInteger(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 50) : 10;
+
+    const where = search
+      ? {
+          OR: [
+            {
+              name: {
+                contains: search,
+                mode: 'insensitive' as const,
+              },
+            },
+            {
+              email: {
+                contains: search,
+                mode: 'insensitive' as const,
+              },
+            },
+          ],
+        }
+      : {};
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          role: true,
+          createdAt: true,
+          _count: {
+            select: {
+              books: true,
+            },
+          },
+        },
+      }),
+
+      prisma.user.count({ where }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
