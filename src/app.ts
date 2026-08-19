@@ -13,6 +13,7 @@ import { healthRouter } from './routes/health.routes.js';
 import { authorRouter } from './routes/author.routes.js';
 import { bookRouter } from './routes/book.routes.js';
 import { userRouter } from './routes/user.routes.js';
+import { adminRouter } from './routes/admin.routes.js';
 
 export const app = express();
 
@@ -55,6 +56,9 @@ app.use('/api/authors', authorRouter);
 
 //book routes
 app.use('/api/books', bookRouter);
+
+//admin routes
+app.use('/api/admin', adminRouter);
 
 //error & not found middleware
 app.use(notFound);
