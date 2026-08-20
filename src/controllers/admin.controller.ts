@@ -3,8 +3,7 @@ import type { RequestHandler } from 'express';
 
 import type { Prisma, ReadingStatus } from '../generated/prisma/client.js';
 import { prisma } from '../lib/prisma.js';
-
-
+import { createAuthorSchema } from '../validations/author.validation.js';
 
 export const getAdminDashboard: RequestHandler = async (_req, res, next) => {
   try {
@@ -259,6 +258,108 @@ export const getAdminBooks: RequestHandler = async (req, res, next) => {
         total,
         totalPages: Math.ceil(total / limit),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminAuthors: RequestHandler = async (req, res, next) => {
+  try {
+    const rawPage = Number(req.query.page ?? 1);
+    const rawLimit = Number(req.query.limit ?? 10);
+
+    const search =
+      typeof req.query.search === 'string' ? req.query.search.trim() : '';
+
+    const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+
+    const limit =
+      Number.isInteger(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 50) : 10;
+
+    const where = search
+      ? {
+          name: {
+            contains: search,
+            mode: 'insensitive' as const,
+          },
+        }
+      : {};
+
+    const [authors, total] = await Promise.all([
+      prisma.author.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          name: true,
+          bio: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: {
+            select: {
+              books: true,
+            },
+          },
+        },
+      }),
+
+      prisma.author.count({ where }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: authors,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createAdminAuthor: RequestHandler = async (req, res, next) => {
+  try {
+    const parsed = createAuthorSchema.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        success: false,
+        message: parsed.error.issues[0]?.message ?? 'Invalid author data.',
+      });
+    }
+
+    const author = await prisma.author.create({
+      data: {
+        ...parsed.data,
+        bio: parsed.data.bio ?? null,
+      },
+      select: {
+        id: true,
+        name: true,
+        bio: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            books: true,
+          },
+        },
+      },
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Author created successfully.',
+      data: author,
     });
   } catch (error) {
     next(error);

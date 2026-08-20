@@ -5,6 +5,8 @@ import {
   getAdminBooks,
   getAdminDashboard,
   getAdminUsers,
+  getAdminAuthors,
+  createAdminAuthor,
 } from '../controllers/admin.controller.js';
 import { requireAdmin } from '../middlewares/require-admin.js';
 import { requireAuth } from '../middlewares/require-auth.js';
@@ -17,3 +19,5 @@ adminRouter.use(requireAdmin);
 adminRouter.get('/dashboard', getAdminDashboard);
 adminRouter.get('/users', getAdminUsers);
 adminRouter.get('/books', getAdminBooks);
+adminRouter.get('/authors', getAdminAuthors);
+adminRouter.post('/authors', createAdminAuthor);
