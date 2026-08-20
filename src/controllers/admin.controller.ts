@@ -1,7 +1,10 @@
 //src/controller/admin.controller.ts
 import type { RequestHandler } from 'express';
 
+import type { Prisma, ReadingStatus } from '../generated/prisma/client.js';
 import { prisma } from '../lib/prisma.js';
+
+
 
 export const getAdminDashboard: RequestHandler = async (_req, res, next) => {
   try {
@@ -134,6 +137,122 @@ export const getAdminUsers: RequestHandler = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminBooks: RequestHandler = async (req, res, next) => {
+  try {
+    const rawPage = Number(req.query.page ?? 1);
+    const rawLimit = Number(req.query.limit ?? 10);
+
+    const search =
+      typeof req.query.search === 'string' ? req.query.search.trim() : '';
+
+    const rawStatus =
+      typeof req.query.status === 'string' ? req.query.status : '';
+
+    const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+
+    const limit =
+      Number.isInteger(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 50) : 10;
+
+    const allowedStatuses = new Set<ReadingStatus>([
+      'WANT_TO_READ',
+      'READING',
+      'COMPLETED',
+    ]);
+
+    const status = allowedStatuses.has(rawStatus as ReadingStatus)
+      ? (rawStatus as ReadingStatus)
+      : undefined;
+
+    const where: Prisma.BookWhereInput = {
+      ...(status ? { status } : {}),
+
+      ...(search
+        ? {
+            OR: [
+              {
+                title: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                author: {
+                  name: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+              {
+                user: {
+                  name: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+              {
+                user: {
+                  email: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
+    };
+
+    const [books, total] = await Promise.all([
+      prisma.book.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        select: {
+          id: true,
+          title: true,
+          coverImageUrl: true,
+          publishedYear: true,
+          status: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      }),
+
+      prisma.book.count({ where }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: books,
       pagination: {
         page,
         limit,

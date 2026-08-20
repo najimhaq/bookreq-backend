@@ -66,3 +66,4 @@ export const getMyProfile: RequestHandler = async (req, res) => {
     data: user,
   })
 }
+

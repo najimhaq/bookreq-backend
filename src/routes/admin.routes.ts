@@ -2,6 +2,7 @@
 import { Router } from 'express';
 
 import {
+  getAdminBooks,
   getAdminDashboard,
   getAdminUsers,
 } from '../controllers/admin.controller.js';
@@ -15,3 +16,4 @@ adminRouter.use(requireAdmin);
 
 adminRouter.get('/dashboard', getAdminDashboard);
 adminRouter.get('/users', getAdminUsers);
+adminRouter.get('/books', getAdminBooks);
