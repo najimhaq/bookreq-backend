@@ -227,3 +227,10 @@ Actively under development. The admin dashboard, user management, book managemen
 ---
 
 Built for readers who want their library to feel as considered as the books inside it.
+
+## Author
+
+Built by **Najim Haq**.
+
+- Portfolio: [najimul.com](https://najimul.com)
+- GitHub: [@najimhaq](https://github.com/najimhaq)
