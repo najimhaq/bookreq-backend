@@ -28,12 +28,28 @@ app.use(
   })
 );
 
+const allowedOrigins = ['http://localhost:3000', env.CLIENT_URL].filter(
+  (origin): origin is string => Boolean(origin)
+);
+
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 86_400,
   })
 );
@@ -60,12 +76,6 @@ app.use('/api/books', bookRouter);
 //admin routes
 app.use('/api/admin', adminRouter);
 
-
-//error & not found middleware
-app.use(notFound);
-
-app.use(errorHandler);
-
 // একটি Protected Route
 app.get('/api/protected', async (req: Request, res: Response) => {
   const session = await auth.api.getSession({
@@ -81,3 +91,8 @@ app.get('/api/protected', async (req: Request, res: Response) => {
     user: session.user,
   });
 });
+
+//error & not found middleware
+app.use(notFound);
+
+app.use(errorHandler);

@@ -11,7 +11,9 @@ export const auth = betterAuth({
 
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
-  trustedOrigins: [env.CLIENT_URL],
+  trustedOrigins: ['http://localhost:3000', env.CLIENT_URL].filter(
+    (origin): origin is string => Boolean(origin)
+  ),
 
   emailAndPassword: {
     enabled: true,
