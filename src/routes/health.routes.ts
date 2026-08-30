@@ -11,7 +11,7 @@ healthRouter.get('/', async (_req, res) => {
 
   res.status(200).json({
     success: true,
-    message: 'BookRaq API and database are running',
+    message: 'Bookraq API and database are running',
     environment: env.NODE_ENV,
   });
 
