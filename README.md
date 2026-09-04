@@ -232,5 +232,7 @@ Built for readers who want their library to feel as considered as the books insi
 
 Built by **Najim Haq**.
 
+- Live Client: [@vercel](https://github.com/najimhaq/bookreq-frontend)
+- Live Server: [@render](https://bookreq-api.onrender.com/api/health)
 - Portfolio: [najimul.com](https://najimul.com)
 - GitHub: [@najimhaq](https://github.com/najimhaq)
