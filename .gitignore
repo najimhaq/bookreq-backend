@@ -1,5 +1,8 @@
 node_modules/
 .env
+.agents/
+.claude/
+.windsurf/
 dist/
 cat > .gitignore <<'EOF'
 node_modules/
